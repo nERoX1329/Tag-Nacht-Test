@@ -27,14 +27,14 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             text-align: center;
             width: 90%;
-            max-width: 500px;
+            max-width: 750px; /* Erhöht von 500px für ein größeres Bild/Komponente */
         }
 
         /* Bildcontainer */
         .image-container {
             position: relative;
             width: 100%;
-            padding-top: 66.66%; /* 3:2 Seitenverhältnis */
+            padding-top: 66.66%; /* 3:2 Seitenverhältnis beibehalten */
             margin: 0 auto 25px auto;
             border-radius: 12px;
             overflow: hidden;
@@ -99,8 +99,6 @@
         /* Daumen-Position im aktiven Zustand (Nacht-Modus) */
         .custom-slider.active::before {
             /* Verschiebt den Daumen nach rechts */
-            /* Berechnung: TrackBreite - DaumenBreite - linkerAbstand = 40 - 18 - 2 = 20px */
-            /* Im Beispiel war es translateX(18px), was bei 40px Breite und 18px Daumen + 2px linker Offset passt (40 - 18 - 2 - 2 = 18) */
             transform: translateX(18px);
         }
 
