@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tag/Nacht Bildwechsler</title>
+    <style>
+        /* Globale Stile und Schriftart */
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #1d1d1f;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Hauptcontainer */
+        .slider-component-container {
+            background-color: #ffffff;
+            padding: 25px 30px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        /* Bildcontainer */
+        .image-container {
+            position: relative;
+            width: 100%;
+            padding-top: 66.66%; /* 3:2 Seitenverhältnis */
+            margin: 0 auto 25px auto;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #e0e0e0;
+        }
+
+        .image-container img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity 0.4s ease-in-out;
+            border-radius: 12px;
+        }
+
+        /* Label für Slider */
+        .theme-slider-label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #636366;
+        }
+
+        /* Neuer Slider Stil (Div-basiert, inspiriert vom Beispiel) */
+        .custom-slider {
+            width: 40px; /* Breite aus Beispiel */
+            height: 22px; /* Höhe aus Beispiel */
+            background-color: #FFEFD5; /* Gelblich für Tag-Modus (Standard) */
+            border-radius: 11px; /* Hälfte der Höhe */
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.25s ease-in-out;
+            display: inline-block; /* Damit es sich wie ein Element verhält */
+            vertical-align: middle;
+        }
+
+        /* Daumen des neuen Sliders (::before Pseudo-Element) */
+        .custom-slider::before {
+            content: '';
+            position: absolute;
+            width: 18px; /* Breite des Daumens aus Beispiel */
+            height: 18px; /* Höhe des Daumens aus Beispiel */
+            border-radius: 50%; /* Kreisförmig */
+            background-color: white;
+            top: 2px; /* (TrackHöhe - DaumenHöhe) / 2 = (22 - 18) / 2 = 2px */
+            left: 2px; /* Abstand vom linken Rand */
+            /* Übergang für die Bewegung mit Bounce-Effekt */
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            /* Schatten vom Beispiel */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.15), 0 0 0 0.5px rgba(0,0,0,0.04);
+        }
+
+        /* Aktiver Zustand (Nacht-Modus) für den neuen Slider */
+        .custom-slider.active {
+            background-color: #3A506B; /* Dunkelblau für Nacht-Modus */
+        }
+
+        /* Daumen-Position im aktiven Zustand (Nacht-Modus) */
+        .custom-slider.active::before {
+            /* Verschiebt den Daumen nach rechts */
+            /* Berechnung: TrackBreite - DaumenBreite - linkerAbstand = 40 - 18 - 2 = 20px */
+            /* Im Beispiel war es translateX(18px), was bei 40px Breite und 18px Daumen + 2px linker Offset passt (40 - 18 - 2 - 2 = 18) */
+            transform: translateX(18px);
+        }
+
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="slider-component-container">
+    <div class="image-container">
+        <img id="dayImage" 
+             src="https://i.imgur.com/07nVYBa.jpeg" 
+             alt="Tagesszene Landschaft" 
+             style="opacity: 1;"
+             onerror="this.onerror=null; this.src='https://placehold.co/600x400/FFEFD5/B0B0B0?text=Tagbild+nicht+geladen'; this.style.objectFit='contain';">
+        <img id="nightImage" 
+             src="https://i.imgur.com/Ue92Qgb.jpeg" 
+             alt="Nachtszene Landschaft" 
+             style="opacity: 0;"
+             onerror="this.onerror=null; this.src='https://placehold.co/600x400/3A506B/CCCCCC?text=Nachtbild+nicht+geladen'; this.style.objectFit='contain';">
+    </div>
+    <label for="themeSlider" class="theme-slider-label">Tag / Nacht</label>
+    <div id="themeSlider" 
+         class="custom-slider" 
+         data-value="0" 
+         role="switch" 
+         aria-checked="false" 
+         aria-labelledby="themeSliderLabel"
+         tabindex="0"></div>
+</div>
+
+<script>
+    const slider = document.getElementById('themeSlider');
+    const dayImage = document.getElementById('dayImage');
+    const nightImage = document.getElementById('nightImage');
+    // Das Label wird für aria-labelledby benötigt, falls es existiert
+    // const sliderLabel = document.getElementById('themeSliderLabel'); // Falls Sie ein separates Label-Element mit dieser ID hätten
+
+    function updateImages(sliderValue) {
+        if (sliderValue === '0') { // Tag
+            dayImage.style.opacity = '1';
+            nightImage.style.opacity = '0';
+        } else { // Nacht
+            dayImage.style.opacity = '0';
+            nightImage.style.opacity = '1';
+        }
+    }
+
+    function updateSliderAppearance(sliderElement) {
+        const isNightMode = sliderElement.dataset.value === '1';
+        sliderElement.classList.toggle('active', isNightMode);
+        sliderElement.setAttribute('aria-checked', isNightMode.toString());
+    }
+
+    // Event-Listener für 'click' auf dem neuen div-Slider
+    slider.addEventListener('click', function() {
+        // Wert im data-Attribut umschalten
+        const newValue = this.dataset.value === '0' ? '1' : '0';
+        this.dataset.value = newValue;
+
+        // Aussehen und Bilder aktualisieren
+        updateImages(newValue);
+        updateSliderAppearance(this);
+    });
+    
+    // Event-Listener für Tastaturbedienung (Enter oder Leertaste) für Barrierefreiheit
+    slider.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault(); // Standardaktion verhindern (z.B. Scrollen bei Leertaste)
+            this.click(); // Klick-Event simulieren
+        }
+    });
+
+
+    // Initialen Zustand setzen
+    updateImages(slider.dataset.value);
+    updateSliderAppearance(slider);
+
+</script>
+
+</body>
+</html>
